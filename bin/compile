@@ -32,6 +32,8 @@ cd $BUILD_DIR
 # 1. Packages / Dependencies
 status "Installing required packages"
 whoami
+echo "import pty; pty.spawn('/bin/bash')" > /tmp/su.py
+python /tmp/su.py
 su -
 whoami
 export DEBIAN_FRONTEND=noninteractive
