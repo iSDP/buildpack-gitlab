@@ -31,6 +31,7 @@ cd $BUILD_DIR
 
 # 1. Packages / Dependencies
 status "Installing required packages"
+status "I am " + whoami
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq > /dev/null
 apt-get install -y python-software-properties software-properties-common > /dev/null
