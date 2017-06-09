@@ -31,7 +31,6 @@ cd $BUILD_DIR
 
 # 1. Packages / Dependencies
 status "Installing required packages"
-su - -c "whoami"
 whoami
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq > /dev/null
