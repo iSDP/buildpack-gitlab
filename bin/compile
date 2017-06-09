@@ -64,18 +64,18 @@ wget -qO- https://github.com/gitlabhq/gitlab-shell/archive/${GITLAB_SHELL_VERSIO
 		su - git -c "git apply --ignore-space-change --ignore-whitespace $ROOT_DIR/support/patches/gitlab-shell-config.rb.patch"
 	fi
 	status "Writing gitlab-shell/config.yml to read from REDIS_URL"
-	sudo -u git -H cp $ROOT_DIR/support/templates/gitlab-shell-config.yml config.yml
+	su - git -c "cp $ROOT_DIR/support/templates/gitlab-shell-config.yml config.yml"
 	# dirty way to make sure the environment variables from gitlab will be available in gitlab-shell cli via ssh
-	sudo cp $ROOT_DIR/support/templates/gitlab2gitlabshell-env.sh /usr/local/bin/gitlab2gitlabshell-env.sh
-	sudo chmod +x /usr/local/bin/gitlab2gitlabshell-env.sh
-	sudo grep -q "gitlab2gitlabshell" /etc/pam.d/sshd || echo "session    optional     pam_exec.so /usr/local/bin/gitlab2gitlabshell-env.sh" | sudo tee -a /etc/pam.d/sshd > /dev/null
-	sudo grep -q "PermitUserEnvironment yes" /etc/ssh/sshd_config || echo "PermitUserEnvironment yes" | sudo tee -a /etc/ssh/sshd_config > /dev/null
-	sudo -u git -H test -d /home/git/.profile.d || sudo -u git -H mkdir /home/git/.profile.d
-	sudo -u git -H ln -s $BUILD_DIR/.profile.d/app-env.sh /home/git/.profile.d/app-env.sh
-	sudo -u git -H mkdir log
+	cp $ROOT_DIR/support/templates/gitlab2gitlabshell-env.sh /usr/local/bin/gitlab2gitlabshell-env.sh
+	chmod +x /usr/local/bin/gitlab2gitlabshell-env.sh
+	grep -q "gitlab2gitlabshell" /etc/pam.d/sshd || echo "session    optional     pam_exec.so /usr/local/bin/gitlab2gitlabshell-env.sh" | tee -a /etc/pam.d/sshd > /dev/null
+	grep -q "PermitUserEnvironment yes" /etc/ssh/sshd_config || echo "PermitUserEnvironment yes" | tee -a /etc/ssh/sshd_config > /dev/null
+	su - git -c "test -d /home/git/.profile.d || su - git -c "mkdir /home/git/.profile.d""
+	su - git -c "ln -s $BUILD_DIR/.profile.d/app-env.sh /home/git/.profile.d/app-env.sh"
+	su - git -c "mkdir log"
 	status "Installing gitlab-shell"
-	sudo -E -u git -H ./bin/install
-	sudo -u git -H mkdir /home/git/gitlab-satellites
+	su - git -c "./bin/install"
+	su - git -c "mkdir /home/git/gitlab-satellites"
 )
 
 chown -R git:root /home/git/repositories/
@@ -104,9 +104,9 @@ test -f config/unicorn.rb || cp config/unicorn.rb.example config/unicorn.rb
 sed 's,/home/git/gitlab,/app,' -i config/unicorn.rb
 test -f config/initializers/rack_attack.rb || cp config/initializers/rack_attack.rb.example config/initializers/rack_attack.rb
 
-sudo -u git -H git config --global user.name "GitLab"
-sudo -u git -H git config --global user.email "gitlab@localhost"
-sudo -u git -H git config --global core.autocrlf input
+su - git -c "git config --global user.name "GitLab""
+su - git -c "git config --global user.email "gitlab@localhost""
+su - git -c "git config --global core.autocrlf input"
 
 # run processes as root
 # status "Patching config/gitlab.yml to run processes as root"
@@ -121,8 +121,8 @@ mkdir -p tmp/pids/ tmp/sockets/ public/uploads
 # EOF
 
 # install logrotate configuration
-sudo cp lib/support/logrotate/gitlab /etc/logrotate.d/gitlab
-sudo sed 's,/home/git/gitlab/,/app/,' -i /etc/logrotate.d/gitlab
+cp lib/support/logrotate/gitlab /etc/logrotate.d/gitlab
+sed 's,/home/git/gitlab/,/app/,' -i /etc/logrotate.d/gitlab
 
 # 7. Nginx
 # not required
@@ -133,6 +133,6 @@ if [ ! -f config/initializers/smtp_settings.rb ]; then
 fi
 
 # create the /var/run/sshd directory (required for sshd to start)
-sudo mkdir -p /var/run/sshd
+mkdir -p /var/run/sshd
 
 status "Finished building GitLab"
